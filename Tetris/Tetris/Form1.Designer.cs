@@ -51,7 +51,7 @@
             this.Controls.Add(this.GameBoard);
             this.Name = "MainForm";
             this.Text = "WinTetris";
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.mainForm_KeyDown);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             ((System.ComponentModel.ISupportInitialize)(this.GameBoard)).EndInit();
             this.ResumeLayout(false);
 

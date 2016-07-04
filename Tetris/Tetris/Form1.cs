@@ -16,15 +16,30 @@ namespace Tetris
             InitializeComponent();
         }
 
-        private void mainForm_KeyDown(object sender, KeyEventArgs e)
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
             switch(e.KeyCode)
             {
-                case Keys.Space:
-                    this.GameBoard.GeneratePiece();
-                    break;
                 case Keys.Up:
-                    this.GameBoard.RotatePiece();
+                    GameBoard.RotatePiece();
+                    break;
+                case Keys.Left:
+                    GameBoard.LefterPiece();
+                    break;
+                case Keys.Right:
+                    GameBoard.RighterPiece();
+                    break;
+                case Keys.Down:
+                    GameBoard.LowerPiece();
+                    break;
+                case Keys.Enter:
+                    GameBoard.GameOnOff();
+                    break;
+                case Keys.T:
+                    GameBoard.GeneratePiece("tee");
+                    break;
+                case Keys.Space:
+                    GameBoard.GeneratePiece("stick");
                     break;
             }
         }

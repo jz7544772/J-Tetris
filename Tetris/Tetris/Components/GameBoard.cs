@@ -21,19 +21,40 @@ namespace Tetris.Components
 
         Piece currentPiece;
 
+        Timer gameTimer;
+
+        Boolean gameOn;
+
         public GameBoard()
         {
             this.BackColor = Color.Orange;
             this.SetBounds(0, 0, 300, 550);
             this.Name = "GameBoard";
 
+            gameTimer = new Timer();
+            gameTimer.Interval = 500;
+            gameTimer.Tick += new EventHandler(GameTimerTick);
+            gameTimer.Start();
+
             DrawGrids();
             InitializeComponent();
         }
 
-        protected override void OnPaint(PaintEventArgs pe)
+        private void GameTimerTick(object sender, EventArgs e)
         {
-            base.OnPaint(pe);
+            if(gameOn)
+            {
+                if(currentPiece == null)
+                {
+                    GeneratePiece("stick");
+                }
+                LowerPiece();
+            }
+        }
+
+        public void GameOnOff()
+        {
+            this.gameOn = !(this.gameOn);
         }
 
         private void DrawGrids()
@@ -54,19 +75,85 @@ namespace Tetris.Components
             this.Image = gridImage;
         }
 
+        /*
         public void GeneratePiece()
         {
             currentPiece = new Piece("stick"); 
             this.Controls.Add(currentPiece);
         }
+        */
+
+        public void GeneratePiece(string pieceName)
+        {
+            currentPiece = new Piece(pieceName);
+            this.Controls.Add(currentPiece);
+        }
 
         public void RotatePiece()
         {
-            currentPiece.PerformRotation();
+            if(currentPiece != null)
+            {
+                currentPiece.PerformRotation();
+            }
         }
 
-        public void LowerPiece() { }
+        // A helper function checking whether the currentPiece has landed
+        public Boolean CollisionBottom() 
+        {   
+            if(this.currentPiece.Location.Y + this.currentPiece.Height >= this.Height)
+            {
+                return true;
+            }
+            return false;
+        }
+        public Boolean CollisionLeft()
+        {
+            if(this.currentPiece.Location.X <= 0)
+            {
+                return true;
+            }
+            return false;
+        }
+        public Boolean CollisionRight()
+        {
+            if (this.currentPiece.Location.X + this.currentPiece.Width >= this.Width)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public void LowerPiece() {
+            if(!CollisionBottom())
+            {
+                this.currentPiece.Top += 25;
+            }
+        }
+        public void RighterPiece()
+        {
+            if (!CollisionRight())
+            {
+                this.currentPiece.Left += 30;
+            }
+        }
+        public void LefterPiece()
+        {
+            if (!CollisionLeft())
+            {
+                this.currentPiece.Left -= 30;
+            }
+        }
+
+        public void LandPiece()
+        {
+
+        }
 
         public void DropPiece() { }
+
+        protected override void OnPaint(PaintEventArgs pe)
+        {
+            base.OnPaint(pe);
+        }
     }
 }
