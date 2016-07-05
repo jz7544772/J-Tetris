@@ -35,7 +35,6 @@
             // 
             // GameBoard
             // 
-            this.GameBoard.BackColor = System.Drawing.Color.Orange;
             this.GameBoard.Image = ((System.Drawing.Image)(resources.GetObject("GameBoard.Image")));
             this.GameBoard.Location = new System.Drawing.Point(0, 0);
             this.GameBoard.Name = "GameBoard";

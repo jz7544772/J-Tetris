@@ -41,7 +41,11 @@ namespace Tetris
                 case Keys.Space:
                     GameBoard.GeneratePiece("stick");
                     break;
+                case Keys.M:
+                    GameBoard.PrintGrids();
+                    break;
             }
+
         }
     }
 

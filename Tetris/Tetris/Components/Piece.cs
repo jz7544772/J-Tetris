@@ -17,9 +17,11 @@ namespace Tetris.Components
         int rotation;
         string name;
         Color color;
-        int [, ] shape;
+        int[, ] shape;
+        int[][,] shapes;
         Bitmap[] shapeImages;
         int[,] shapeSizes;
+        int code;
 
         Boolean rotated;
 
@@ -37,23 +39,23 @@ namespace Tetris.Components
         {
             switch (this.name)
             {
-                case "stick": 
-                    if(this.rotation == 0)
+                case "stick":
+                    if (this.rotation == 0)
                     {
-                        this.shape = new int[ , ]
-                        { 
+                        this.shape = new int[,]
+                        {
                             { 1,1,1,1}
                         };
                         this.rowCount = 1;
                         this.columnCount = 4;
                     }
-                    else if(this.rotation == 1)
+                    else if (this.rotation == 1)
                     {
-                        this.shape = new int[ , ] 
-                        { 
+                        this.shape = new int[,]
+                        {
                             {1},
-                            {1}, 
-                            {1}, 
+                            {1},
+                            {1},
                             {1}
                         };
                         this.rowCount = 4;
@@ -62,16 +64,17 @@ namespace Tetris.Components
 
                     if (!this.rotated)
                     {
+                        this.code = 1;
                         this.color = Color.Cyan;
                         this.shapeImages = new Bitmap[2] { null, null };
                         this.shapeSizes = new int[2, 2];
                     }
                     break;
 
-                case "tee": 
-                    if(this.rotation == 0)
+                case "tee":
+                    if (this.rotation == 0)
                     {
-                        this.shape = new int[ , ]
+                        this.shape = new int[,]
                         {
                             { 1, 1, 1 },
                             { 0, 1, 0 }
@@ -90,7 +93,7 @@ namespace Tetris.Components
                         this.rowCount = 3;
                         this.columnCount = 2;
                     }
-                   else if (this.rotation == 2)
+                    else if (this.rotation == 2)
                     {
                         this.shape = new int[,]
                         {
@@ -112,8 +115,9 @@ namespace Tetris.Components
                         this.columnCount = 2;
                     }
 
-                    if(!this.rotated)
+                    if (!this.rotated)
                     {
+                        this.code = 3;
                         this.color = Color.Yellow;
                         this.shapeImages = new Bitmap[4] { null, null, null, null };
                         this.shapeSizes = new int[4, 2];
@@ -149,11 +153,54 @@ namespace Tetris.Components
                 }
             }
 
+            // TODO: How does a jagged array work?
+            //this.shapes[this.rotation] = this.shape;
             this.shapeImages[this.rotation] = shapeImage;
             this.shapeSizes[this.rotation, 0] = this.Width;
             this.shapeSizes[this.rotation, 1] = this.Height;
             this.Image = shapeImage;
         }
+
+        /*
+        public void DrawShape()
+        {
+            try
+            {
+                this.Size = new Size(this.columnCount * 30, this.rowCount * 25);
+
+                Bitmap shapeImage = new Bitmap(this.Width, this.Height);
+                Pen shapePen = new Pen(Color.White, 1);
+
+                SolidBrush shapeBrush = new SolidBrush(this.color);
+                Rectangle tempRect;
+
+                using (Graphics g = Graphics.FromImage(shapeImage))
+                {
+                    for (int row = 0; row < this.rowCount; row++)
+                    {
+                        for (int column = 0; column < this.columnCount; column++)
+                        {
+                            if (this.shape[row, column] == 1)
+                            {
+                                tempRect = new Rectangle(column * 30, row * 25, 30, 25);
+                                g.FillRectangle(shapeBrush, tempRect);
+                                g.DrawRectangle(shapePen, tempRect);
+                            }
+                        }
+                    }
+                }
+                
+                this.shapeImages[this.rotation] = shapeImage;
+                this.shapeSizes[this.rotation, 0] = this.Width;
+                this.shapeSizes[this.rotation, 1] = this.Height;
+                this.Image = shapeImage;
+            } catch(Exception ex)
+            {
+                MessageBox.Show(ex.StackTrace);
+                return;
+            }
+        }
+        */
 
         public void PerformRotation()
         {
@@ -168,6 +215,7 @@ namespace Tetris.Components
 
                 if (this.shapeImages[this.rotation] != null)
                 {
+                    this.shape = this.shapes[this.rotation];
                     this.Size = new Size(shapeSizes[this.rotation, 0], shapeSizes[this.rotation, 1]);
                     this.Image = this.shapeImages[this.rotation];
                 }
@@ -181,6 +229,15 @@ namespace Tetris.Components
             }
         }
 
+        public int[ , ] GetShape()
+        {
+            return this.shape;
+        }
+
+        public int GetCode()
+        {
+            return this.code;
+        }
 
         protected override void OnPaint(PaintEventArgs pe)
         {
