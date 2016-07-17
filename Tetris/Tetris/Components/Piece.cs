@@ -38,13 +38,13 @@ namespace Tetris.Components
 
         public void SetRotations()
         {
-            this.rotations = new int[4][,];
             switch (this.name)
             {
                 case "stick":
                     this.code = 1;
                     this.color = Color.Cyan;
                     SetDimension(4, 4);
+                    this.rotations = new int[4][,];
                     this.rotations[0] = new int[,]
                     {
                         { 0, 0, 0, 0 },
@@ -74,10 +74,21 @@ namespace Tetris.Components
                         { 0, 1, 0, 0 }
                     };
                     break;
+                case "square":
+                    this.code = 2;
+                    this.color = Color.LightGray;
+                    SetDimension(2, 2);
+                    this.rotations = new int[1][,];
+                    this.rotations[0] = new int[,] {
+                        { 1, 1 },
+                        { 1, 1 }
+                    };
+                    break;
                 case "tee":
                     this.code = 3;
                     this.color = Color.Yellow;
                     SetDimension(3, 3);
+                    this.rotations = new int[4][,];
                     this.rotations[0] = new int[,]
                     {
                        { 0, 1, 0 },
@@ -100,6 +111,126 @@ namespace Tetris.Components
                     {
                        { 0, 1, 0 },
                        { 1, 1, 0 },
+                       { 0, 1, 0 }
+                    }; 
+                    break;
+                case "ess":
+                    this.code = 4;
+                    this.color = Color.Lime;
+                    SetDimension(3, 3);
+                    this.rotations = new int[4][,];
+                    this.rotations[0] = new int[,]
+                    {
+                       { 0, 1, 1 },
+                       { 1, 1, 0 },
+                       { 0, 0, 0 }
+                    };
+                    this.rotations[1] = new int[,]
+                    {
+                       { 0, 1, 0 },
+                       { 0, 1, 1 },
+                       { 0, 0, 1 }
+                    };
+                    this.rotations[2] = new int[,]
+                    {
+                       { 0, 0, 0 },
+                       { 0, 1, 1 },
+                       { 1, 1, 0 }
+                    };
+                    this.rotations[3] = new int[,]
+                    {
+                       { 1, 0, 0 },
+                       { 1, 1, 0 },
+                       { 0, 1, 0 }
+                    };
+                    break;
+                case "zed":
+                    this.code = 5;
+                    this.color = Color.Red;
+                    SetDimension(3, 3);
+                    this.rotations = new int[4][,];
+                    this.rotations[0] = new int[,]
+                   {
+                       { 1, 1, 0 },
+                       { 0, 1, 1 },
+                       { 0, 0, 0 }
+                   };
+                    this.rotations[1] = new int[,]
+                    {
+                       { 0, 0, 1 },
+                       { 0, 1, 1 },
+                       { 0, 1, 0 }
+                    };
+                    this.rotations[2] = new int[,]
+                    {
+                       { 0, 0, 0 },
+                       { 1, 1, 0 },
+                       { 0, 1, 1 }
+                    };
+                    this.rotations[3] = new int[,]
+                    {
+                       { 0, 1, 0 },
+                       { 1, 1, 0 },
+                       { 1, 0, 0 }
+                    };
+                    break;
+                case "jay":
+                    this.code = 6;
+                    this.color = Color.Purple;
+                    SetDimension(3, 3);
+                    this.rotations = new int[4][,];
+                    this.rotations[0] = new int[,]
+                   {
+                       { 1, 0, 0 },
+                       { 1, 1, 1 },
+                       { 0, 0, 0 }
+                   };
+                    this.rotations[1] = new int[,]
+                    {
+                       { 0, 1, 1 },
+                       { 0, 1, 0 },
+                       { 0, 1, 0 }
+                    };
+                    this.rotations[2] = new int[,]
+                    {
+                       { 0, 0, 0 },
+                       { 1, 1, 1 },
+                       { 0, 0, 1 }
+                    };
+                    this.rotations[3] = new int[,]
+                    {
+                       { 0, 1, 0 },
+                       { 0, 1, 0 },
+                       { 1, 1, 0 }
+                    };
+                    break;
+                case "el":
+                    this.code = 6;
+                    this.color = Color.Magenta;
+                    SetDimension(3, 3);
+                    this.rotations = new int[4][,];
+                    this.rotations[0] = new int[,]
+                   {
+                       { 0, 0, 1 },
+                       { 1, 1, 1 },
+                       { 0, 0, 0 }
+                   };
+                    this.rotations[1] = new int[,]
+                    {
+                       { 0, 1, 0 },
+                       { 0, 1, 0 },
+                       { 0, 1, 1 }
+                    };
+                    this.rotations[2] = new int[,]
+                    {
+                       { 0, 0, 0 },
+                       { 1, 1, 1 },
+                       { 1, 0, 0 }
+                    };
+                    this.rotations[3] = new int[,]
+                    {
+                       { 1, 1, 0 },
+                       { 0, 1, 0 },
                        { 0, 1, 0 }
                     };
                     break;
@@ -155,7 +286,6 @@ namespace Tetris.Components
                             }
                         }
                     }
-                    rotationImage.MakeTransparent();
                     this.rotationImages[this.rotationIndex] = rotationImage;
                     this.Image = rotationImage;
                 }
@@ -171,7 +301,11 @@ namespace Tetris.Components
                 this.DrawShape();
             } catch(Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show(
+                    "Piece.Rotate: " + "\n" +
+                    ex.Message + "\n" +
+                    ex.StackTrace
+                );
             }
         }
 
@@ -181,7 +315,7 @@ namespace Tetris.Components
         }
         public int[ , ] GetNextRotation()
         {
-            int nextRotationIndex = (this.rotationIndex) + 1 % this.rotations.Length;
+            int nextRotationIndex = (this.rotationIndex + 1) % this.rotations.Length;
             return this.rotations[nextRotationIndex];
         }
 

@@ -149,14 +149,76 @@ namespace Tetris.Components
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.StackTrace);
                 this.gameTimer.Stop();
+                MessageBox.Show(
+                    "GameBoard.GeneratePiece: " + "\n" +
+                    ex.Message + "\n" +
+                    ex.StackTrace
+                );
             }
+        }
+
+        private Boolean CollisionPiece()
+        {
+            try
+            {
+                Boolean stop = false; 
+
+                int currentPieceX = this.currentPiece.Location.X;
+                int currentPieceY = this.currentPiece.Location.Y;
+
+                int[,] nextRotation = this.currentPiece.GetNextRotation();
+                int pieceRowCount = nextRotation.GetLength(0);
+                int pieceColumnCount = nextRotation.GetLength(1);
+
+                for(int row = 0; row < pieceRowCount; row++)
+                {
+                    for(int column = 0; column < pieceColumnCount; column+= pieceColumnCount - 1)
+                    {
+                        if (nextRotation[row, column] == 1)
+                        {
+                            int coordX = (currentPieceX + (column * this.gridWidth)) / this.gridWidth;
+                            int coordY = (currentPieceY + (row * this.gridHeight)) / this.gridHeight;
+                            if(this.grids[coordY][coordX] >0)
+                            {
+                                return true;
+                            }
+
+                            if (column == 0) // Leftmost
+                            {
+                                if (coordX <= 0)
+                                {
+                                    this.currentPiece.Left = this.currentPiece.Left + this.gridWidth * (0 - coordX + 1);
+                                    return false;
+                                }
+                            }
+                            else // Rightmost
+                            {
+                                
+                                if(coordX >= this.columnCount - 1)
+                                {
+                                    this.currentPiece.Left = this.currentPiece.Left - this.gridWidth * (coordX - this.columnCount + 2);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch(Exception ex)
+            {
+                this.gameTimer.Stop();
+                MessageBox.Show(
+                    "GameBoard.CollisionPiece: " + "\n" +
+                    ex.Message + "\n" +
+                    ex.StackTrace
+                );
+            }
+
+            return false;
         }
 
         public void RotatePiece()
         {
-            if (currentPiece != null)
+            if (!CollisionPiece())
             {
                 currentPiece.Rotate();
             }
@@ -198,7 +260,12 @@ namespace Tetris.Components
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                this.gameTimer.Stop();
+                MessageBox.Show(
+                    "GameBoard.CollisionBottom: " + "\n" +
+                    ex.Message + "\n" +
+                    ex.StackTrace
+                );
             }
 
             return false;
@@ -233,7 +300,12 @@ namespace Tetris.Components
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                this.gameTimer.Stop();
+                MessageBox.Show(
+                    "GameBoard.CollisionLeft: " + "\n" +
+                    ex.Message + "\n" +
+                    ex.StackTrace
+                );
             }
             return false;
         }
@@ -267,7 +339,12 @@ namespace Tetris.Components
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                this.gameTimer.Stop();
+                MessageBox.Show(
+                    "GameBoard.CollisionRight: " + "\n" +
+                    ex.Message + "\n" +
+                    ex.StackTrace
+                );
             }
             return false;
         }

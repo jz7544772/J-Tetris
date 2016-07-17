@@ -35,11 +35,26 @@ namespace Tetris
                 case Keys.Enter:
                     GameBoard.GameOnOff();
                     break;
+                case Keys.Space:
+                    GameBoard.GeneratePiece("stick");
+                    break;
+                case Keys.S:
+                    GameBoard.GeneratePiece("square");
+                    break;
                 case Keys.T:
                     GameBoard.GeneratePiece("tee");
                     break;
-                case Keys.Space:
-                    GameBoard.GeneratePiece("stick");
+                case Keys.E:
+                    GameBoard.GeneratePiece("ess");
+                    break;
+                case Keys.Z:
+                    GameBoard.GeneratePiece("zed");
+                    break;
+                case Keys.J:
+                    GameBoard.GeneratePiece("jay");
+                    break;
+                case Keys.L:
+                    GameBoard.GeneratePiece("el");
                     break;
                 case Keys.M:
                     GameBoard.PrintGrids();
