@@ -38,7 +38,7 @@
             this.GameBoard.Image = ((System.Drawing.Image)(resources.GetObject("GameBoard.Image")));
             this.GameBoard.Location = new System.Drawing.Point(0, 0);
             this.GameBoard.Name = "GameBoard";
-            this.GameBoard.Size = new System.Drawing.Size(300, 550);
+            this.GameBoard.Size = new System.Drawing.Size(360, 550);
             this.GameBoard.TabIndex = 0;
             this.GameBoard.TabStop = false;
             // 
@@ -46,7 +46,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(303, 552);
+            this.ClientSize = new System.Drawing.Size(360, 549);
             this.Controls.Add(this.GameBoard);
             this.Name = "MainForm";
             this.Text = "WinTetris";

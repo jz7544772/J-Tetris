@@ -11,227 +11,178 @@ namespace Tetris.Components
 {
     public partial class Piece : PictureBox
     {
+        string name;
+        Color color;
+        int code;
+
         int rowCount;
         int columnCount;
 
-        int rotation;
-        string name;
-        Color color;
-        int[, ] shape;
-        int[][,] shapes;
-        Bitmap[] shapeImages;
-        int[,] shapeSizes;
-        int code;
+        int[][,] rotations;
+        Bitmap[] rotationImages;
+        int rotationIndex;
+        int[,] rotation;
 
-        Boolean rotated;
-
-        public Piece(string name, int rotation = 0)
+        public Piece(string name, int rotationIndex = 0)
         {
+            this.BackColor = Color.Transparent;
+
             this.name = name;
-            this.rotation = rotation;
-            this.Location = new Point(0, 0);
-            FormPiece();
+            this.rotationIndex = rotationIndex;
+            this.Location = new Point(Properties.Settings.Default.gridWidth, 0);
+
+            this.SetRotations();
 
             InitializeComponent();
         }
 
-        public void FormPiece()
+        public void SetRotations()
         {
+            this.rotations = new int[4][,];
             switch (this.name)
             {
                 case "stick":
-                    if (this.rotation == 0)
+                    this.code = 1;
+                    this.color = Color.Cyan;
+                    SetDimension(4, 4);
+                    this.rotations[0] = new int[,]
                     {
-                        this.shape = new int[,]
-                        {
-                            { 1,1,1,1}
-                        };
-                        this.rowCount = 1;
-                        this.columnCount = 4;
-                    }
-                    else if (this.rotation == 1)
+                        { 0, 0, 0, 0 },
+                        { 1, 1, 1, 1 },
+                        { 0, 0, 0, 0 },
+                        { 0, 0, 0, 0 }
+                    };
+                    this.rotations[1] = new int[,]
                     {
-                        this.shape = new int[,]
-                        {
-                            {1},
-                            {1},
-                            {1},
-                            {1}
-                        };
-                        this.rowCount = 4;
-                        this.columnCount = 1;
-                    }
-
-                    if (!this.rotated)
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 1, 0 },
+                        { 0, 0, 1, 0 }
+                    };
+                    this.rotations[2] = new int[,]
                     {
-                        this.code = 1;
-                        this.color = Color.Cyan;
-                        this.shapeImages = new Bitmap[2] { null, null };
-                        this.shapeSizes = new int[2, 2];
-                    }
+                        { 0, 0, 0, 0 },
+                        { 0, 0, 0, 0 },
+                        { 1, 1, 1, 1 },
+                        { 0, 0, 0, 0 }
+                    };
+                    this.rotations[3] = new int[,]
+                    {
+                        { 0, 1, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 1, 0, 0 },
+                        { 0, 1, 0, 0 }
+                    };
                     break;
-
                 case "tee":
-                    if (this.rotation == 0)
+                    this.code = 3;
+                    this.color = Color.Yellow;
+                    SetDimension(3, 3);
+                    this.rotations[0] = new int[,]
                     {
-                        this.shape = new int[,]
-                        {
-                            { 1, 1, 1 },
-                            { 0, 1, 0 }
-                        };
-                        this.rowCount = 2;
-                        this.columnCount = 3;
-                    }
-                    else if (this.rotation == 1)
+                       { 0, 1, 0 },
+                       { 1, 1, 1 },
+                       { 0, 0, 0 }
+                    };
+                    this.rotations[1] = new int[,]
                     {
-                        this.shape = new int[,]
-                        {
-                            { 0, 1 },
-                            { 1, 1 },
-                            { 0, 1 }
-                        };
-                        this.rowCount = 3;
-                        this.columnCount = 2;
-                    }
-                    else if (this.rotation == 2)
+                       { 0, 1, 0 },
+                       { 0, 1, 1 },
+                       { 0, 1, 0 }
+                    };
+                    this.rotations[2] = new int[,]
                     {
-                        this.shape = new int[,]
-                        {
-                            { 0, 1, 0 },
-                            { 1, 1, 1 }
-                        };
-                        this.rowCount = 2;
-                        this.columnCount = 3;
-                    }
-                    else if (this.rotation == 3)
+                       { 0, 0, 0 },
+                       { 1, 1, 1 },
+                       { 0, 1, 0 }
+                    };
+                    this.rotations[3] = new int[,]
                     {
-                        this.shape = new int[,]
-                        {
-                             { 1, 0 },
-                             { 1, 1 },
-                             { 1, 0 }
-                        };
-                        this.rowCount = 3;
-                        this.columnCount = 2;
-                    }
-
-                    if (!this.rotated)
-                    {
-                        this.code = 3;
-                        this.color = Color.Yellow;
-                        this.shapeImages = new Bitmap[4] { null, null, null, null };
-                        this.shapeSizes = new int[4, 2];
-                    }
+                       { 0, 1, 0 },
+                       { 1, 1, 0 },
+                       { 0, 1, 0 }
+                    };
                     break;
             }
-
-            this.Size = new Size(this.columnCount * 30, this.rowCount * 25);
+            this.rotationImages = new Bitmap[this.rotations.Length];
+            this.rotation = this.rotations[this.rotationIndex];
+            SetSize();
             DrawShape();
         }
 
-        public void DrawShape()
+        private void SetDimension(int rowCount, int columnCount)
         {
-            Bitmap shapeImage = new Bitmap(this.Width, this.Height);
-            Pen shapePen = new Pen(Color.White, 1);
-
-            SolidBrush shapeBrush = new SolidBrush(this.color);
-            Rectangle tempRect;
-
-            using (Graphics g = Graphics.FromImage(shapeImage))
-            {
-                for (int row = 0; row < this.rowCount; row++)
-                {
-                    for (int column = 0; column < this.columnCount; column++)
-                    {
-                        if (this.shape[row, column] == 1)
-                        {
-                            tempRect = new Rectangle(column * 30, row * 25, 30, 25);
-                            g.FillRectangle(shapeBrush, tempRect);
-                            g.DrawRectangle(shapePen, tempRect);
-                        }
-                    }
-                }
-            }
-
-            // TODO: How does a jagged array work?
-            //this.shapes[this.rotation] = this.shape;
-            this.shapeImages[this.rotation] = shapeImage;
-            this.shapeSizes[this.rotation, 0] = this.Width;
-            this.shapeSizes[this.rotation, 1] = this.Height;
-            this.Image = shapeImage;
+            this.rowCount = rowCount;
+            this.columnCount = columnCount;
         }
 
-        /*
+        private void SetSize()
+        {
+            this.Size = new Size(this.columnCount * Properties.Settings.Default.gridWidth,
+                                  this.rowCount * Properties.Settings.Default.gridHeight);
+        }
+
         public void DrawShape()
         {
-            try
+            if(this.rotationImages[this.rotationIndex] != null)
             {
-                this.Size = new Size(this.columnCount * 30, this.rowCount * 25);
-
-                Bitmap shapeImage = new Bitmap(this.Width, this.Height);
+                this.Image = this.rotationImages[this.rotationIndex];
+            }
+            else
+            {
+                Bitmap rotationImage = new Bitmap(this.Width, this.Height);
                 Pen shapePen = new Pen(Color.White, 1);
 
                 SolidBrush shapeBrush = new SolidBrush(this.color);
                 Rectangle tempRect;
 
-                using (Graphics g = Graphics.FromImage(shapeImage))
+                using (Graphics g = Graphics.FromImage(rotationImage))
                 {
                     for (int row = 0; row < this.rowCount; row++)
                     {
                         for (int column = 0; column < this.columnCount; column++)
                         {
-                            if (this.shape[row, column] == 1)
+                            if (this.rotation[row, column] == 1)
                             {
-                                tempRect = new Rectangle(column * 30, row * 25, 30, 25);
+                                tempRect = new Rectangle(
+                                    column * Properties.Settings.Default.gridWidth,
+                                    row * Properties.Settings.Default.gridHeight,
+                                    Properties.Settings.Default.gridWidth,
+                                    Properties.Settings.Default.gridHeight);
+
                                 g.FillRectangle(shapeBrush, tempRect);
                                 g.DrawRectangle(shapePen, tempRect);
                             }
                         }
                     }
+                    rotationImage.MakeTransparent();
+                    this.rotationImages[this.rotationIndex] = rotationImage;
+                    this.Image = rotationImage;
                 }
-                
-                this.shapeImages[this.rotation] = shapeImage;
-                this.shapeSizes[this.rotation, 0] = this.Width;
-                this.shapeSizes[this.rotation, 1] = this.Height;
-                this.Image = shapeImage;
-            } catch(Exception ex)
-            {
-                MessageBox.Show(ex.StackTrace);
-                return;
             }
         }
-        */
 
-        public void PerformRotation()
+        public void Rotate()
         {
             try
             {
-                this.rotation = (this.rotation + 1) % this.shapeImages.Length;
-
-                if(!this.rotated)
-                {
-                    this.rotated = true;
-                }
-
-                if (this.shapeImages[this.rotation] != null)
-                {
-                    this.shape = this.shapes[this.rotation];
-                    this.Size = new Size(shapeSizes[this.rotation, 0], shapeSizes[this.rotation, 1]);
-                    this.Image = this.shapeImages[this.rotation];
-                }
-                else
-                {
-                    FormPiece();
-                }
+                this.rotationIndex = (this.rotationIndex + 1) % this.rotations.Length;
+                this.rotation = this.rotations[this.rotationIndex];
+                this.DrawShape();
             } catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
         }
 
-        public int[ , ] GetShape()
+        public int[ , ] GetRotation()
         {
-            return this.shape;
+            return this.rotation;
+        }
+        public int[ , ] GetNextRotation()
+        {
+            int nextRotationIndex = (this.rotationIndex) + 1 % this.rotations.Length;
+            return this.rotations[nextRotationIndex];
         }
 
         public int GetCode()

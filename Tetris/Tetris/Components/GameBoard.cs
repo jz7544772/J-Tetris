@@ -12,9 +12,11 @@ namespace Tetris.Components
 {
     public partial class GameBoard : PictureBox
     {
-        int[][] grids = new int[22][]; 
-        int columnCount = 10;
-        int rowCount = 22;
+        int gridWidth;
+        int columnCount;
+        int gridHeight;
+        int rowCount;
+        int[][] grids;
 
         Dictionary<int, Color> PieceColors = new Dictionary<int, Color>();
         Piece currentPiece;
@@ -24,12 +26,7 @@ namespace Tetris.Components
 
         public GameBoard()
         {
-            for (int row = 0; row < rowCount; row++) {
-                this.grids[row] = new int[columnCount];
-            }
-
-            this.SetBounds(0, 0, 300, 550);
-            this.Name = "GameBoard";
+            Initialize();
 
             gameTimer = new Timer();
             gameTimer.Interval = 500;
@@ -43,10 +40,49 @@ namespace Tetris.Components
             PieceColors[4] = Color.Lime; // ess
             PieceColors[5] = Color.Red; // zed
             PieceColors[6] = Color.Purple; //jay
-            PieceColors[7] = Color.Magenta; //el
+            PieceColors[7] = Color.Magenta; //el 
+            PieceColors[8] = Color.Black; //boundary
 
             DrawGrids();
             InitializeComponent();
+        }
+
+        private void Initialize()
+        {
+            this.gridWidth = Properties.Settings.Default.gridWidth;
+            this.columnCount = Properties.Settings.Default.columnCount;
+            this.gridHeight = Properties.Settings.Default.gridHeight;
+            this.rowCount = Properties.Settings.Default.rowCount;
+
+            this.Size = new Size(
+                this.gridWidth * this.columnCount,
+                this.gridHeight * this.rowCount);
+
+            this.Name = "GameBoard";
+
+            this.grids = new int[this.rowCount][];
+            for (int row = 0; row < this.rowCount -1 ; row++)
+            {
+                this.grids[row] = InitializeIntGridBoundarLeftRight(this.columnCount, 8);
+            }
+            this.grids[this.rowCount - 1] = InitializeIntGridBoundaryBottom(this.columnCount, 8);
+        }
+
+        private int[] InitializeIntGridBoundarLeftRight(int valueCount, int value)
+        {
+            int[] arry = new int[valueCount];
+            arry[0] = 8;
+            arry[valueCount - 1] = 8;
+            return arry;
+        }
+        private int[] InitializeIntGridBoundaryBottom(int valueCount, int value)
+        {
+            int[] arry = new int[valueCount];
+            for(int i=0; i < valueCount; i++)
+            {
+                arry[i] = value;
+            }
+            return arry;
         }
 
         private void GameTimerTick(object sender, EventArgs e)
@@ -57,7 +93,7 @@ namespace Tetris.Components
                 {
                     LowerPiece();
                 }
-                
+
             }
         }
 
@@ -68,7 +104,7 @@ namespace Tetris.Components
 
         private void DrawGrids()
         {
-            Bitmap gridImage = new Bitmap(300, 550);
+            Bitmap gridImage = new Bitmap(this.Width, this.Height);
             Pen gridPen = new Pen(Color.Black, 1);
 
             Rectangle tempRect;
@@ -78,11 +114,13 @@ namespace Tetris.Components
 
             using (Graphics g = Graphics.FromImage(gridImage))
             {
-                for (int row = 0; row < rowCount; row++)
+                for (int row = 0; row < this.rowCount; row++)
                 {
-                    for (int column = 0; column < columnCount; column++)
+                    for (int column = 0; column < this.columnCount; column++)
                     {
-                        tempRect = new Rectangle(column * 30, row * 25, 30, 25);
+                        tempRect = new Rectangle(
+                            column * this.gridWidth, row * this.gridHeight,
+                            this.gridWidth, this.gridHeight);
 
                         pieceCode = this.grids[row][column];
                         gridBrush = new SolidBrush(this.PieceColors[pieceCode]);
@@ -108,7 +146,8 @@ namespace Tetris.Components
             {
                 currentPiece = new Piece(pieceName);
                 this.Controls.Add(currentPiece);
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.StackTrace);
                 this.gameTimer.Stop();
@@ -119,7 +158,7 @@ namespace Tetris.Components
         {
             if (currentPiece != null)
             {
-                currentPiece.PerformRotation();
+                currentPiece.Rotate();
             }
         }
 
@@ -128,42 +167,36 @@ namespace Tetris.Components
         // 2. landed on the top of another piece
         public Boolean CollisionBottom()
         {
-            try {
+            try
+            {
                 int currentPieceX = this.currentPiece.Location.X;
                 int currentPieceY = this.currentPiece.Location.Y;
 
-                int[,] pieceShape = this.currentPiece.GetShape();
+                int[,] pieceShape = this.currentPiece.GetRotation();
                 int pieceRowCount = pieceShape.GetLength(0);
                 int pieceColumnCount = pieceShape.GetLength(1);
 
-                if (currentPieceY + this.currentPiece.Height >= this.Height)
+                for (int row = pieceRowCount - 1; row >= 0; row--)
                 {
-                    this.LandPiece(pieceShape, currentPieceX, currentPieceY);
-                    return true;
-                }
-                else
-                {
-                    for (int row = pieceRowCount - 1; row >= 0; row--)
+                    for (int column = pieceColumnCount - 1; column >= 0; column--)
                     {
-                        for (int column = pieceColumnCount - 1; column >= 0; column--)
+                        if (pieceShape[row, column] == 1)
                         {
-                            if (pieceShape[row, column] == 1)
+                            int coordX = (currentPieceX + (column * this.gridWidth)) / this.gridWidth;
+                            int coordY = (currentPieceY + (row * this.gridHeight)) / this.gridHeight;
+
+                            if (coordY <= rowCount - 2) { coordY += 1; };
+
+                            if (this.grids[coordY][coordX] != 0)
                             {
-                                int coordX = (currentPieceX + (column * 30)) / 30;
-                                int coordY = (currentPieceY + (row * 25)) / 25;
-
-                                if (coordY <= rowCount - 2) { coordY += 1; };
-
-                                if (this.grids[coordY][coordX] != 0)
-                                {
-                                    this.LandPiece(pieceShape, currentPieceX, currentPieceY, 1);
-                                    return true;
-                                }
+                                this.LandPiece(pieceShape, currentPieceX, currentPieceY, 1);
+                                return true;
                             }
                         }
                     }
-                }
-            } catch (Exception ex)
+                } 
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -172,39 +205,92 @@ namespace Tetris.Components
         }
         public Boolean CollisionLeft()
         {
-            if (this.currentPiece.Location.X <= 0)
+            try
             {
-                return true;
+                int currentPieceX = this.currentPiece.Location.X;
+                int currentPieceY = this.currentPiece.Location.Y;
+
+                int[,] pieceShape = this.currentPiece.GetRotation();
+                int pieceRowCount = pieceShape.GetLength(0);
+                int pieceColumnCount = pieceShape.GetLength(1);
+
+                for(int column = 0; column < pieceColumnCount; column++)
+                {
+                    for(int row = 0; row < pieceRowCount; row ++)
+                    {
+                        if(pieceShape[row, column] == 1)
+                        {
+                            int coordX = (currentPieceX + (column * this.gridWidth)) / this.gridWidth;
+                            int coordY = (currentPieceY + (row * this.gridHeight)) / this.gridHeight;
+
+                            if (this.grids[coordY][coordX - 1] != 0)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
             return false;
         }
         public Boolean CollisionRight()
         {
-            if (this.currentPiece.Location.X + this.currentPiece.Width >= this.Width)
+            try
             {
-                return true;
+                int currentPieceX = this.currentPiece.Location.X;
+                int currentPieceY = this.currentPiece.Location.Y;
+
+                int[,] pieceShape = this.currentPiece.GetRotation();
+                int pieceRowCount = pieceShape.GetLength(0);
+                int pieceColumnCount = pieceShape.GetLength(1);
+
+                for (int column = pieceColumnCount - 1; column >= 0; column--)
+                {
+                    for (int row = 0; row < pieceRowCount; row++)
+                    {
+                        if (pieceShape[row, column] == 1)
+                        {
+                            int coordX = (currentPieceX + (column * this.gridWidth)) / this.gridWidth;
+                            int coordY = (currentPieceY + (row * this.gridHeight)) / this.gridHeight;
+
+                            if (this.grids[coordY][coordX + 1] != 0)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
             return false;
         }
 
-        public void LowerPiece() {
+        public void LowerPiece()
+        {
             if (!CollisionBottom())
             {
-                this.currentPiece.Top += 25;
+                this.currentPiece.Top += this.gridHeight;
             }
         }
         public void RighterPiece()
         {
             if (!CollisionRight())
             {
-                this.currentPiece.Left += 30;
+                this.currentPiece.Left += this.gridWidth;
             }
         }
         public void LefterPiece()
         {
             if (!CollisionLeft())
             {
-                this.currentPiece.Left -= 30;
+                this.currentPiece.Left -= this.gridWidth;
             }
         }
 
@@ -217,13 +303,10 @@ namespace Tetris.Components
             {
                 for (int column = pieceColumnCount - 1; column >= 0; column--)
                 {
-
                     if (pieceShape[row, column] == 1)
                     {
-                        int coordX = (pieceX + (column * 30)) / 30;
-                        int coordY = (pieceY + (row * 25)) / 25;
-
-
+                        int coordX = (pieceX + (column * this.gridWidth)) / this.gridWidth;
+                        int coordY = (pieceY + (row * this.gridHeight)) / this.gridHeight;
                         this.grids[coordY][coordX] = this.currentPiece.GetCode();
                     }
                 }
@@ -235,26 +318,27 @@ namespace Tetris.Components
             DrawGrids();
         }
 
-        private void CheckClear () {
+        private void CheckClear()
+        {
             Boolean stop;
-            for (int row = rowCount - 1; row >= 0; row--)
+            for (int row = this.rowCount - 2; row >= 0; row--)
             {
                 stop = false;
-                for (int column = 0; column < columnCount && stop == false; column++)
+                for (int column = 0; column < this.columnCount && stop == false; column++)
                 {
-                    if(this.grids[row][column] == 0)
+                    if (this.grids[row][column] == 0)
                     {
                         stop = true;
                     }
                 }
 
-                if(stop == false)
+                if (stop == false)
                 {
                     for (int shiftRow = row; shiftRow >= 0; shiftRow--)
                     {
                         if (shiftRow == 0)
                         {
-                            this.grids[shiftRow] = new int[columnCount];
+                            this.grids[shiftRow] = InitializeIntGridBoundarLeftRight(this.columnCount, 8);
                         }
                         else
                         {
@@ -262,24 +346,20 @@ namespace Tetris.Components
                         }
                     }
 
-                    row = rowCount - 1;
+                    row = this.rowCount - 1;
                 }
             }
-               
-
-            int[] tempRow;
             // TODO: If row is the first row, then the game ends
-            
         }
 
         public void PrintGrids()
         {
             string s = "";
-            for (int i = 0; i < 22; i++)
+            for (int i = 0; i < this.rowCount; i++)
             {
-                for (int j = 0; j < 10; j++)
+                for (int j = 0; j < this.columnCount; j++)
                 {
-                   s+=string.Format("{0} ", this.grids[i][ j]);
+                    s += string.Format("{0} ", this.grids[i][j]);
                 }
                 s += Environment.NewLine;
             }
