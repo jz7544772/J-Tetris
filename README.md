@@ -7,3 +7,9 @@ Tetris made in C#
 * ~~Add rest of the pieces~~
 * Clean up the messy code by using a configuration file
 * Implement end-game condition
+
+
+## Instruction:
+
+Enter: statr/pause the game
+Arrows key for controls.
