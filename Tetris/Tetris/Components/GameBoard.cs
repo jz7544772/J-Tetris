@@ -19,6 +19,9 @@ namespace Tetris.Components
         int[][] grids;
 
         Dictionary<int, Color> PieceColors = new Dictionary<int, Color>();
+        string[] PieceNames = new string[] { "stick", "square", "tee", "ess", "zed", "jay", "el"};
+        Random rnd = new Random();
+
         Piece currentPiece;
         Timer gameTimer;
 
@@ -93,7 +96,10 @@ namespace Tetris.Components
                 {
                     LowerPiece();
                 }
-
+                else
+                {
+                    this.GeneratePiece(this.PieceNames[rnd.Next(0, 6)]);
+                }
             }
         }
 
