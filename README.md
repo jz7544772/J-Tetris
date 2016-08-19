@@ -11,5 +11,5 @@ Tetris made in C#
 
 ## Instruction:
 
-Enter: statr/pause the game
+Enter: statr/pause the game  
 Arrows key for controls.
